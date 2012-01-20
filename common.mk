@@ -1,3 +1,5 @@
+IGM_DIR=nao_igm
+
 CXX_WARN_FLAGS=-Wall -Wfloat-equal -Wshadow -pedantic -std=c++98
 IFLAGS+=-I../${SOLVER_DIR}/include -I../${IGM_DIR}/include
 

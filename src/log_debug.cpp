@@ -6,6 +6,7 @@
 
 
 #include "log_debug.h"
+#include "nao_igm.h"
 
 
 spy_timer::spy_timer()
@@ -22,14 +23,13 @@ spy_timer::~spy_timer()
 
 
 
-spy_log *spy_log_instance;
-
 spy_log::spy_log ()
 {
     FJointsLog = fopen ("./spy_joints.log", "w");
     FCoMLog = fopen ("./spy_com.log", "w");
     FRightFootLog = fopen ("./spy_right_foot.log", "w");
     FLeftFootLog = fopen ("./spy_left_foot.log", "w");
+    FSwingFootLog = fopen ("./spy_swing_foot.log", "w");
 }
 
 spy_log::~spy_log ()
@@ -38,6 +38,7 @@ spy_log::~spy_log ()
     fclose (FCoMLog);
     fclose (FRightFootLog);
     fclose (FLeftFootLog);
+    fclose (FSwingFootLog);
 }
 
 
@@ -105,33 +106,97 @@ void spy_log::logJointValues(
 
 
 
-void spy_log::logCoM(AL::ALPtr<AL::ALMotionProxy> motionProxy)
+void spy_log::logCoM(
+        AL::ALPtr<AL::ALMotionProxy> motionProxy,
+        ALPtr<ALMemoryFastAccess> accessSensorValues)
 {
     vector<float> CoM;
+    nao_igm nao;
+    vector<float> lfoot, rfoot;
+
+
+    
+    accessSensorValues->GetValues (sensorValues);
+    for (int i = 0; i < JOINTS_NUM; i++)
+    {
+        nao.state.q[i] = sensorValues[i];
+    }
+
+    rfoot = motionProxy->getPosition("RLeg",1,false);
+    lfoot = motionProxy->getPosition("LLeg",1,false);
+    if (rfoot[2] < lfoot[2])
+    {
+        nao.init (
+            IGM_SUPPORT_RIGHT,
+            rfoot[0], rfoot[1], rfoot[2],
+            rfoot[3], rfoot[4], rfoot[5]);
+    }
+    else
+    {
+        nao.init (
+            IGM_SUPPORT_LEFT,
+            lfoot[0], lfoot[1], lfoot[2],
+            lfoot[3], lfoot[4], lfoot[5]);
+    }
+    
 
     CoM = motionProxy->getCOM("Body",1,false);
     fprintf (FCoMLog, "%f %f %f    ", CoM[0], CoM[1], CoM[2]);
 
     CoM.clear();
     CoM = motionProxy->getCOM("Body",1,true);
-    fprintf (FCoMLog, "%f %f %f\n", CoM[0], CoM[1], CoM[2]);
+    fprintf (FCoMLog, "%f %f %f    ", CoM[0], CoM[1], CoM[2]);
+
+    double igm_CoM[3];
+    nao.state.getCoM(igm_CoM);
+    fprintf (FCoMLog, "%f %f %f\n", igm_CoM[0], igm_CoM[1], igm_CoM[2]);
 }
 
 
-void spy_log::logFoot(AL::ALPtr<AL::ALMotionProxy> motionProxy)
+void spy_log::logFoot(
+        AL::ALPtr<AL::ALMotionProxy> motionProxy,
+        ALPtr<ALMemoryFastAccess> accessSensorValues)
 {
-    vector<float> foot;
-
-    foot = motionProxy->getPosition("LLeg",1,false);
-    fprintf (FLeftFootLog, "%f %f %f    ", foot[0], foot[1], foot[2]);
-    foot.clear();
-    foot = motionProxy->getPosition("LLeg",1,true);
-    fprintf (FLeftFootLog, "%f %f %f\n", foot[0], foot[1], foot[2]);
+    nao_igm nao;
+    vector<float> lfoot, rfoot;
 
 
-    foot = motionProxy->getPosition("RLeg",1,false);
-    fprintf (FRightFootLog, "%f %f %f    ", foot[0], foot[1], foot[2]);
-    foot.clear();
-    foot = motionProxy->getPosition("RLeg",1,true);
-    fprintf (FRightFootLog, "%f %f %f\n", foot[0], foot[1], foot[2]);
+    accessSensorValues->GetValues (sensorValues);
+    for (int i = 0; i < JOINTS_NUM; i++)
+    {
+        nao.state.q[i] = sensorValues[i];
+    }
+    rfoot = motionProxy->getPosition("RLeg",1,false);
+    lfoot = motionProxy->getPosition("LLeg",1,false);
+    if (rfoot[2] < lfoot[2])
+    {
+        nao.init (
+            IGM_SUPPORT_RIGHT,
+            rfoot[0], rfoot[1], rfoot[2],
+            rfoot[3], rfoot[4], rfoot[5]);
+    }
+    else
+    {
+        nao.init (
+            IGM_SUPPORT_LEFT,
+            lfoot[0], lfoot[1], lfoot[2],
+            lfoot[3], lfoot[4], lfoot[5]);
+    }
+
+
+    fprintf (FLeftFootLog, "%f %f %f    ", lfoot[0], lfoot[1], lfoot[2]);
+    lfoot.clear();
+    lfoot = motionProxy->getPosition("LLeg",1,true);
+    fprintf (FLeftFootLog, "%f %f %f\n", lfoot[0], lfoot[1], lfoot[2]);
+
+
+    fprintf (FRightFootLog, "%f %f %f    ", rfoot[0], rfoot[1], rfoot[2]);
+    rfoot.clear();
+    rfoot = motionProxy->getPosition("RLeg",1,true);
+    fprintf (FRightFootLog, "%f %f %f\n", rfoot[0], rfoot[1], rfoot[2]);
+
+
+    double swing_foot[3];
+    nao.state.getSwingFoot(swing_foot);
+    fprintf (FSwingFootLog, "%f %f %f\n", swing_foot[0], swing_foot[1], swing_foot[2]);
 }

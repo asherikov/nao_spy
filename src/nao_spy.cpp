@@ -86,7 +86,8 @@ void nao_spy::init()
 
 void nao_spy::spy()
 {
-    SPY_LOG_OPEN;
+    spy_log_instance = new spy_log;
+
     try
     {
         fDCMPostProcessConnection =
@@ -105,7 +106,8 @@ void nao_spy::spy()
     motionProxy->setStiffnesses("Body", 0.0f);
     // Remove the postProcess call back connection
     fDCMPostProcessConnection.disconnect();
-    SPY_LOG_CLOSE;
+
+    delete spy_log_instance;
 }
 
 
@@ -115,8 +117,8 @@ void nao_spy::spy()
  */
 void nao_spy::callbackEveryCycle_walk()
 {
-    SPY_TIMER;
-    SPY_LOG_JOINTS(accessSensorValues, accessActuatorValues);
-    SPY_LOG_COM(motionProxy);
-    SPY_LOG_FOOT(motionProxy);
+    spy_timer timer;
+    spy_log_instance->logJointValues(accessSensorValues, accessActuatorValues);
+    spy_log_instance->logCoM(motionProxy, accessSensorValues);
+    spy_log_instance->logFoot(motionProxy, accessSensorValues);
 }

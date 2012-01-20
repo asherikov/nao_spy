@@ -89,6 +89,8 @@ private:
 
     ALPtr<DCMProxy> dcmProxy;
     AL::ALPtr<AL::ALMotionProxy> motionProxy;
+
+    spy_log *spy_log_instance;
 };
 
 #endif  // NAO_SPY_H

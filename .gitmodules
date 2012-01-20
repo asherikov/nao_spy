@@ -1,0 +1,3 @@
+[submodule "nao_igm"]
+	path = nao_igm
+	url = git://github.com/asherikov/nao_igm.git

@@ -34,9 +34,6 @@ class spy_timer
         qi::os::timeval start_time;
 };
 
-#define SPY_TIMER spy_timer timer
-
-
 
 
 using namespace AL;
@@ -52,23 +49,16 @@ class spy_log
                 ALPtr<ALMemoryFastAccess> accessSensorValues,
                 ALPtr<ALMemoryFastAccess> accessActuatorValues);
 
-        void logCoM (AL::ALPtr<AL::ALMotionProxy>);
-        void logFoot (AL::ALPtr<AL::ALMotionProxy>);
+        void logCoM (AL::ALPtr<AL::ALMotionProxy>, ALPtr<ALMemoryFastAccess>);
+        void logFoot (AL::ALPtr<AL::ALMotionProxy>, ALPtr<ALMemoryFastAccess>);
 
     private:
         FILE *FJointsLog;
         FILE *FCoMLog;
         FILE *FRightFootLog;
         FILE *FLeftFootLog;
+        FILE *FSwingFootLog;
         vector<float> sensorValues;
 };
-
-extern spy_log *spy_log_instance;
-
-#define SPY_LOG_OPEN spy_log_instance = new spy_log
-#define SPY_LOG_CLOSE delete spy_log_instance
-#define SPY_LOG_JOINTS(sensors,actuators) spy_log_instance->logJointValues(sensors,actuators)
-#define SPY_LOG_COM(proxy) spy_log_instance->logCoM(proxy)
-#define SPY_LOG_FOOT(proxy) spy_log_instance->logFoot(proxy)
 
 #endif // LOG_DEBUG_H
