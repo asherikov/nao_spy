@@ -122,8 +122,8 @@ void spy_log::logCoM(
         nao.state.q[i] = sensorValues[i];
     }
 
-    rfoot = motionProxy->getPosition("RLeg",1,false);
-    lfoot = motionProxy->getPosition("LLeg",1,false);
+    rfoot = motionProxy->getPosition("RLeg",1,true);
+    lfoot = motionProxy->getPosition("LLeg",1,true);
     if (rfoot[2] < lfoot[2])
     {
         nao.init (
@@ -166,8 +166,8 @@ void spy_log::logFoot(
     {
         nao.state.q[i] = sensorValues[i];
     }
-    rfoot = motionProxy->getPosition("RLeg",1,false);
-    lfoot = motionProxy->getPosition("LLeg",1,false);
+    rfoot = motionProxy->getPosition("RLeg",1,true);
+    lfoot = motionProxy->getPosition("LLeg",1,true);
     if (rfoot[2] < lfoot[2])
     {
         nao.init (
@@ -184,12 +184,14 @@ void spy_log::logFoot(
     }
 
 
+    lfoot = motionProxy->getPosition("LLeg",1,false);
     fprintf (FLeftFootLog, "%f %f %f    ", lfoot[0], lfoot[1], lfoot[2]);
     lfoot.clear();
     lfoot = motionProxy->getPosition("LLeg",1,true);
     fprintf (FLeftFootLog, "%f %f %f\n", lfoot[0], lfoot[1], lfoot[2]);
 
 
+    rfoot = motionProxy->getPosition("RLeg",1,false);
     fprintf (FRightFootLog, "%f %f %f    ", rfoot[0], rfoot[1], rfoot[2]);
     rfoot.clear();
     rfoot = motionProxy->getPosition("RLeg",1,true);
