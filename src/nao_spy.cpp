@@ -100,7 +100,8 @@ void nao_spy::spy()
                 "Error when connecting to DCM postProccess: " + e.toString());
     }
 
-    motionProxy->setStiffnesses("Body", 1.0f);
+//    motionProxy->setStiffnesses("Body", 1.0f);
+    motionProxy->stiffnessInterpolation("Body", 1.0, 0.1);
     motionProxy->walkInit();
     motionProxy->walkTo(0.4f, 0.0f, 0.0f);
     motionProxy->setStiffnesses("Body", 0.0f);
