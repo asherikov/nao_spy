@@ -5,6 +5,8 @@
  */
 
 
+#include <cmath>
+
 #include "log_debug.h"
 #include "nao_igm.h"
 
@@ -23,13 +25,15 @@ spy_timer::~spy_timer()
 
 
 
-spy_log::spy_log ()
+spy_log::spy_log (ALPtr<ALMemoryFastAccess> accessSensorValues)
 {
+    accessSensorValues->GetValues (sensorOldValues);
     FJointsLog = fopen ("./spy_joints.log", "w");
     FCoMLog = fopen ("./spy_com.log", "w");
     FRightFootLog = fopen ("./spy_right_foot.log", "w");
     FLeftFootLog = fopen ("./spy_left_foot.log", "w");
     FSwingFootLog = fopen ("./spy_swing_foot.log", "w");
+    FJointVelocities = fopen ("./spy_joint_velocities.log", "w");
 }
 
 spy_log::~spy_log ()
@@ -39,6 +43,7 @@ spy_log::~spy_log ()
     fclose (FRightFootLog);
     fclose (FLeftFootLog);
     fclose (FSwingFootLog);
+    fclose (FJointVelocities);
 }
 
 
@@ -48,61 +53,33 @@ void spy_log::logJointValues(
         ALPtr<ALMemoryFastAccess> accessActuatorValues)
 {
     accessSensorValues->GetValues (sensorValues);
-    fprintf (FJointsLog, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f    ",
-                        sensorValues[HEAD_PITCH],
-                        sensorValues[HEAD_YAW],
-                        //
-                        sensorValues[L_ANKLE_PITCH],
-                        sensorValues[L_ANKLE_ROLL],
-                        sensorValues[L_ELBOW_ROLL],
-                        sensorValues[L_ELBOW_YAW],
-                        sensorValues[L_HIP_PITCH],
-                        sensorValues[L_HIP_ROLL],
-                        sensorValues[L_HIP_YAW_PITCH],
-                        sensorValues[L_KNEE_PITCH],
-                        sensorValues[L_SHOULDER_PITCH],
-                        sensorValues[L_SHOULDER_ROLL],
-                        sensorValues[L_WRIST_YAW],
-                        //
-                        sensorValues[R_ANKLE_PITCH],
-                        sensorValues[R_ANKLE_ROLL],
-                        sensorValues[R_ELBOW_ROLL],
-                        sensorValues[R_ELBOW_YAW],
-                        sensorValues[R_HIP_PITCH],
-                        sensorValues[R_HIP_ROLL],
-                        sensorValues[R_KNEE_PITCH],
-                        sensorValues[R_SHOULDER_PITCH],
-                        sensorValues[R_SHOULDER_ROLL],
-                        sensorValues[R_WRIST_YAW]);
+    for (int i = 0; i < JOINTS_NUM; i++)
+    {
+        fprintf (FJointsLog, "%f ", sensorValues[i]);
+    }
+    fprintf (FJointsLog, "    ");
+
 
     accessActuatorValues->GetValues (sensorValues);
-    fprintf (FJointsLog, "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",
-                        sensorValues[HEAD_PITCH],
-                        sensorValues[HEAD_YAW],
-                        //
-                        sensorValues[L_ANKLE_PITCH],
-                        sensorValues[L_ANKLE_ROLL],
-                        sensorValues[L_ELBOW_ROLL],
-                        sensorValues[L_ELBOW_YAW],
-                        sensorValues[L_HIP_PITCH],
-                        sensorValues[L_HIP_ROLL],
-                        sensorValues[L_HIP_YAW_PITCH],
-                        sensorValues[L_KNEE_PITCH],
-                        sensorValues[L_SHOULDER_PITCH],
-                        sensorValues[L_SHOULDER_ROLL],
-                        sensorValues[L_WRIST_YAW],
-                        //
-                        sensorValues[R_ANKLE_PITCH],
-                        sensorValues[R_ANKLE_ROLL],
-                        sensorValues[R_ELBOW_ROLL],
-                        sensorValues[R_ELBOW_YAW],
-                        sensorValues[R_HIP_PITCH],
-                        sensorValues[R_HIP_ROLL],
-                        sensorValues[R_KNEE_PITCH],
-                        sensorValues[R_SHOULDER_PITCH],
-                        sensorValues[R_SHOULDER_ROLL],
-                        sensorValues[R_WRIST_YAW]);
+    for (int i = 0; i < JOINTS_NUM; i++)
+    {
+        fprintf (FJointsLog, "%f ", sensorValues[i]);
+    }
+    fprintf (FJointsLog, "\n");
 }
+
+
+void spy_log::logJointVelocities (ALPtr<ALMemoryFastAccess> accessSensorValues, const double time)
+{
+    accessSensorValues->GetValues (sensorValues);
+    for (int i = 0; i < JOINTS_NUM; i++)
+    {
+        fprintf (FJointVelocities, "%f ", fabs(sensorOldValues[i] - sensorValues[i]) / time);
+        sensorOldValues[i] = sensorValues[i];
+    }
+    fprintf (FJointVelocities, "\n");
+}
+
 
 
 

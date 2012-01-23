@@ -86,7 +86,7 @@ void nao_spy::init()
 
 void nao_spy::spy()
 {
-    spy_log_instance = new spy_log;
+    spy_log_instance = new spy_log(accessSensorValues);
 
     try
     {
@@ -120,6 +120,7 @@ void nao_spy::callbackEveryCycle_walk()
 {
     spy_timer timer;
     spy_log_instance->logJointValues(accessSensorValues, accessActuatorValues);
+    spy_log_instance->logJointVelocities(accessSensorValues, (double) 10/1000);
     spy_log_instance->logCoM(motionProxy, accessSensorValues);
     spy_log_instance->logFoot(motionProxy, accessSensorValues);
 }

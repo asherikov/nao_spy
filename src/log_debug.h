@@ -42,15 +42,14 @@ using namespace std;
 class spy_log
 {
     public:
-        spy_log ();
+        spy_log (ALPtr<ALMemoryFastAccess>);
         ~spy_log ();
 
-        void logJointValues (
-                ALPtr<ALMemoryFastAccess> accessSensorValues,
-                ALPtr<ALMemoryFastAccess> accessActuatorValues);
+        void logJointValues (ALPtr<ALMemoryFastAccess>, ALPtr<ALMemoryFastAccess>);
 
         void logCoM (AL::ALPtr<AL::ALMotionProxy>, ALPtr<ALMemoryFastAccess>);
         void logFoot (AL::ALPtr<AL::ALMotionProxy>, ALPtr<ALMemoryFastAccess>);
+        void logJointVelocities (ALPtr<ALMemoryFastAccess>, const double);
 
     private:
         FILE *FJointsLog;
@@ -58,7 +57,9 @@ class spy_log
         FILE *FRightFootLog;
         FILE *FLeftFootLog;
         FILE *FSwingFootLog;
+        FILE *FJointVelocities;
         vector<float> sensorValues;
+        vector<float> sensorOldValues;
 };
 
 #endif // LOG_DEBUG_H
