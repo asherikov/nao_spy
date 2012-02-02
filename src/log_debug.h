@@ -56,7 +56,6 @@ class spy_log
         FILE *FCoMLog;
         FILE *FRightFootLog;
         FILE *FLeftFootLog;
-        FILE *FSwingFootLog;
         FILE *FJointVelocities;
         vector<float> sensorValues;
         vector<float> sensorOldValues;

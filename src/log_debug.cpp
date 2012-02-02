@@ -32,7 +32,6 @@ spy_log::spy_log (ALPtr<ALMemoryFastAccess> accessSensorValues)
     FCoMLog = fopen ("./spy_com.log", "w");
     FRightFootLog = fopen ("./spy_right_foot.log", "w");
     FLeftFootLog = fopen ("./spy_left_foot.log", "w");
-    FSwingFootLog = fopen ("./spy_swing_foot.log", "w");
     FJointVelocities = fopen ("./spy_joint_velocities.log", "w");
 }
 
@@ -42,7 +41,6 @@ spy_log::~spy_log ()
     fclose (FCoMLog);
     fclose (FRightFootLog);
     fclose (FLeftFootLog);
-    fclose (FSwingFootLog);
     fclose (FJointVelocities);
 }
 
@@ -143,39 +141,32 @@ void spy_log::logFoot(
     {
         nao.state.q[i] = sensorValues[i];
     }
-    rfoot = motionProxy->getPosition("RLeg",1,true);
-    lfoot = motionProxy->getPosition("LLeg",1,true);
-    if (rfoot[2] < lfoot[2])
-    {
-        nao.init (
-            IGM_SUPPORT_RIGHT,
-            rfoot[0], rfoot[1], rfoot[2],
-            rfoot[3], rfoot[4], rfoot[5]);
-    }
-    else
-    {
-        nao.init (
-            IGM_SUPPORT_LEFT,
-            lfoot[0], lfoot[1], lfoot[2],
-            lfoot[3], lfoot[4], lfoot[5]);
-    }
-
-
     lfoot = motionProxy->getPosition("LLeg",1,false);
     fprintf (FLeftFootLog, "%f %f %f    ", lfoot[0], lfoot[1], lfoot[2]);
-    lfoot.clear();
-    lfoot = motionProxy->getPosition("LLeg",1,true);
-    fprintf (FLeftFootLog, "%f %f %f\n", lfoot[0], lfoot[1], lfoot[2]);
-
-
     rfoot = motionProxy->getPosition("RLeg",1,false);
     fprintf (FRightFootLog, "%f %f %f    ", rfoot[0], rfoot[1], rfoot[2]);
+
+    lfoot.clear();
+    lfoot = motionProxy->getPosition("LLeg",1,true);
+    fprintf (FLeftFootLog, "%f %f %f     ", lfoot[0], lfoot[1], lfoot[2]);
     rfoot.clear();
     rfoot = motionProxy->getPosition("RLeg",1,true);
-    fprintf (FRightFootLog, "%f %f %f\n", rfoot[0], rfoot[1], rfoot[2]);
+    fprintf (FRightFootLog, "%f %f %f    ", rfoot[0], rfoot[1], rfoot[2]);
+
 
 
     double swing_foot[3];
+    nao.init (
+        IGM_SUPPORT_RIGHT,
+        rfoot[0], rfoot[1], rfoot[2],
+        rfoot[3], rfoot[4], rfoot[5]);
     nao.state.getSwingFoot(swing_foot);
-    fprintf (FSwingFootLog, "%f %f %f\n", swing_foot[0], swing_foot[1], swing_foot[2]);
+    fprintf (FLeftFootLog, "%f %f %f\n", swing_foot[0], swing_foot[1], swing_foot[2]);
+
+    nao.init (
+        IGM_SUPPORT_LEFT,
+        lfoot[0], lfoot[1], lfoot[2],
+        lfoot[3], lfoot[4], lfoot[5]);
+    nao.state.getSwingFoot(swing_foot);
+    fprintf (FRightFootLog, "%f %f %f\n", swing_foot[0], swing_foot[1], swing_foot[2]);
 }

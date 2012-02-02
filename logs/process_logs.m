@@ -148,30 +148,28 @@ end
 
 
 try
-    clear spy_left_foot
-    clear spy_right_foot
-    clear spy_swing_foot
     load (strcat(dir, '/spy_left_foot.log'));
     load (strcat(dir, '/spy_right_foot.log'));
-    load (strcat(dir, '/spy_swing_foot.log'));
 
     if exist('spy_right_foot') && exist('spy_right_foot')
-        sf_expected = spy_left_foot(:, 1:3);
-        sf_sensor = spy_left_foot(:, 4:6);
+        foot_expected = spy_left_foot(:, 1:3);
+        foot_sensor = spy_left_foot(:, 4:6);
+        foot_igm = spy_left_foot(:, 7:9);
         figure ('Position', get(0,'Screensize')*0.9);
         hold on;
         title ('foot position');
-        plot3 (sf_expected(:,1), sf_expected(:,2), sf_expected(:,3), 'b');
-        plot3 (sf_sensor(:,1), sf_sensor(:,2), sf_sensor(:,3), 'r');
+        plot3 (foot_expected(:,1), foot_expected(:,2), foot_expected(:,3), 'b');
+        plot3 (foot_sensor(:,1), foot_sensor(:,2), foot_sensor(:,3), 'r');
+        plot3 (foot_igm(:,1), foot_igm(:,2), foot_igm(:,3), 'k');
 
-        sf_expected = spy_right_foot(:, 1:3);
-        sf_sensor = spy_right_foot(:, 4:6);
-        plot3 (sf_expected(:,1), sf_expected(:,2), sf_expected(:,3), 'b');
-        plot3 (sf_sensor(:,1), sf_sensor(:,2), sf_sensor(:,3), 'r');
-        legend ('Expected', 'Computed from sensor data')
+        foot_expected = spy_right_foot(:, 1:3);
+        foot_sensor = spy_right_foot(:, 4:6);
+        foot_igm = spy_right_foot(:, 7:9);
+        plot3 (foot_expected(:,1), foot_expected(:,2), foot_expected(:,3), 'b');
+        plot3 (foot_sensor(:,1), foot_sensor(:,2), foot_sensor(:,3), 'r');
+        plot3 (foot_igm(:,1), foot_igm(:,2), foot_igm(:,3), 'k');
+        legend ('Expected', 'Computed from sensor data', 'IGM')
 
-        sf_sensor = spy_swing_foot(:, 1:3);
-        plot3 (sf_sensor(:,1), sf_sensor(:,2), sf_sensor(:,3), 'k');
 
         hold off;
     end
